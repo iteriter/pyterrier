@@ -10,7 +10,7 @@ a Python wrapper around the widely-used `trec_eval evaluation tool <https://gith
 The main way to achieve this is using `pt.Experiment()`.
 
 API
-========
+===
 
 .. autofunction:: pyterrier.Experiment()
 
