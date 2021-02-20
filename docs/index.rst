@@ -23,6 +23,7 @@ Welcome to PyTerrier's documentation!
    pipeline_examples.md
    text
    neural
+   tuning
    experiments/Robust04
 
 .. toctree::

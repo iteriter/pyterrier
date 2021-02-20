@@ -54,28 +54,24 @@ def GridSearch(pipeline : TransformerBase, topics : pd.DataFrame, qrels : pd.Dat
     varied must be changable using the :func:`set_parameter()` method. This means instance variables,
     as well as controls in the case of BatchRetrieve.
 
+    GridSearch currently has a sequential implementation - this is likely to change in the future.
+
     Args:
-        - pipeline(TransformerBase) : a retrieval system or a pipeline of such
+        - pipeline(TransformerBase): a transformer or pipeline
         - topics(DataFrame): topics to tune upon
         - qrels(DataFrame): qrels to tune upon
         - param_map(dict): a two-level dictionary, mapping transformer id to param name to a list of values
-        - metric(string): name of the metric to tune
-        - verbose(bool): whether to use progress bars or not 
+        - metric(string): name of the metric to tune. Defaults to "ndcg".
+        - verbose(bool): whether to display progress bars or not 
 
-    *** Returns ***
+    Returns:
         - A tuple containing the best transformer, and a two-level parameter map of the identified best settings
 
-    :Example:
-
-    >>> br = pt.BatchRetrieve(index, wmodel="BM25", controls={"c" : "0.25"}, id="bm25")
-    >>> params = {
-    >>>     'bm25' : {'c' : [b/10 for b in range(0,11)] }
-    >>> }
-    >>> rtr = pt.pipelines.GridSearchCV(br, tr_topics, qrels, params, metric="ndcg")
-    >>> pt.Experiment([rtr], test_topics, qrels, eval_metrics=["ndcg"])
+    Raises:
+        - KeyError: if no transformer with the specified id can be found
+        - ValueError: if a specified transformer does not have such a parameter
+    
     """
-    
-    
 
     #Store the all parameter names and candidate values into a dictionary, keyed by a tuple of transformer id and parameter name
     #such as {('id1', 'wmodel'): ['BM25', 'PL2'], ('id1', 'c'): [0.1, 0.2, 0.3], ('id2', 'lr'): [0.001, 0.01, 0.1]}

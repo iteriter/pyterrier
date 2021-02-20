@@ -104,3 +104,5 @@ Here are some hints for writing Transformers:
 
  - If you return ranked results, use `pt.model.add_ranks()` to add the rank column.
  - If your approach can be trained, you should extends EstimatorBase, and implement the `fit()` method.
+ - If your approach has parameters that may be tuned, it may make sense to expose these as instance variables, and
+check their value each time that transform() is called.
