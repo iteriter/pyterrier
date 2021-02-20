@@ -119,27 +119,6 @@ class TransformerBase(object):
     def __init__(self, **kwargs):
         if 'id' in kwargs:
             self.id = str(kwargs['id'])
-
-    # Get specific parameter value by parameter's name    
-    def get_parameter(self, name):
-        if hasattr(self, name):
-            return getattr(self, name)
-        else:
-            raise ValueError(("Invalid parameter name %s for transformer %s. " + 
-                      "Check the list of available parameters") %(str(name), str(self)))
-
-    # Set the value for specific parameter
-    def set_parameter(self, name, value):
-        if hasattr(self, name):
-            setattr(self, name, value)
-        else:
-            raise ValueError(('Invalid parameter name %s for transformer %s. '+
-                    'Check the list of available parameters') %(name, str(self)))
-
-    def get_transformer(self, id):
-        if hasattr(self, "id") and self.id == id:
-            return self
-        return None
     
     def transform(self, topics_or_res):
         """
@@ -211,6 +190,57 @@ class TransformerBase(object):
             setup_rewrites()
         print("Applying %d rules" % len(rewrite_rules))
         return replace_all(self, rewrite_rules)
+
+    def set_all_parameters(self, param_map : dict):
+        """
+            Allows to set parameters in the retrieval pipeline.
+
+            Example::
+
+                pipe = pt.BatchRetrieve(index, wmodel="PL2", controls={"c":0.1}, id="pl2") %10
+                pipe.set_all_parameters({'pl2' : {'c' : 1}})
+
+        """
+        for tran_id, value_map in param_map.items():
+            t = self.get_transformer(tran_id)
+            if t is None:
+                raise KeyError("No such transformer with id %s in retrieval pipeline %s" % (tran_id, str(self)))
+            for param, value in value_map.items():
+                t.set_parameter(param, value)
+
+    # Get specific parameter value by parameter's name    
+    def get_parameter(self, name : str):
+        """
+            Gets the current value of a particular key of the transformer's configuration state
+        """
+        if hasattr(self, name):
+            return getattr(self, name)
+        else:
+            raise ValueError(("Invalid parameter name %s for transformer %s. " + 
+                      "Check the list of available parameters") %(str(name), str(self)))
+
+    def set_parameter(self, name : str, value):
+        """
+            Adjusts this transformer's configuration state, by setting the value for specific parameter
+        """
+        if hasattr(self, name):
+            setattr(self, name, value)
+        else:
+            raise ValueError(('Invalid parameter name %s for transformer %s. '+
+                    'Check the list of available parameters') %(name, str(self)))
+
+    def get_transformer(self, id : str):
+        """
+            Traverses the transformer tree looking for a specified id.
+
+            Example::
+
+                pipe = pt.BatchRetrieve(index, wmodel="PL2", controls={"c":0.1}, id="pl2") %10
+                pl2 = pipe.get_transformer("pl2")
+        """
+        if hasattr(self, "id") and self.id == id:
+            return self
+        return None
 
     def __call__(self, *args, **kwargs):
         """
