@@ -11,6 +11,22 @@ class TestOperators(unittest.TestCase):
         if not pt.started():
             pt.init()
 
+    def test_gridsearch_errors(self):
+        dataset = pt.datasets.get_dataset("vaswani")
+        br = pt.BatchRetrieve(dataset.get_index(), wmodel="BM25", controls={"c" : "0.25"}, id="bm25")
+        params = {
+            'bm25' : {'d' : [b/10 for b in range(0,11)] }
+        }
+        with self.assertRaises(ValueError):
+            rtr = pt.pipelines.GridSearch(br, dataset.get_topics().head(10), dataset.get_qrels(), params, metric="ndcg")
+
+        
+        params = {
+            'bm25b' : {'c' : [b/10 for b in range(0,11)] }
+        }
+        with self.assertRaises(KeyError):
+            rtr = pt.pipelines.GridSearch(br, dataset.get_topics().head(10), dataset.get_qrels(), params, metric="ndcg")
+
 
     def test_gridsearch_one(self):
         dataset = pt.datasets.get_dataset("vaswani")
